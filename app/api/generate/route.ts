@@ -2,18 +2,18 @@ import axios from 'axios';
 
 export async function POST(request: Request) {
   try {
-    // Obtiene el cuerpo de la solicitud (el tema o pregunta del usuario)
-    const { prompt } = await request.json();
+    // Obtiene el cuerpo de la solicitud (historial de mensajes)
+    const { messages } = await request.json();
 
-    console.log('Prompt recibido:', prompt); // Log para verificar el prompt
+    console.log('Historial de mensajes recibido:', messages); // Log para verificar el historial
 
     // Llama a la API de OpenAI usando el modelo gpt-3.5-turbo
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions', // Endpoint para chat completions
       {
         model: 'gpt-3.5-turbo', // Modelo actualizado
-        messages: [{ role: 'user', content: prompt }], // Formato requerido por el modelo
-        max_tokens: 50, // Máximo número de palabras en la respuesta
+        messages: messages, // Historial de mensajes (incluye mensajes del usuario y del asistente)
+        max_tokens: 100, // Máximo número de palabras en la respuesta
       },
       {
         headers: {
@@ -29,13 +29,12 @@ export async function POST(request: Request) {
     const result = response.data.choices[0].message.content.trim();
     return new Response(JSON.stringify({ result }), { status: 200 });
   } catch (error) {
-    // Verifica si el error es un objeto con las propiedades esperadas
+    // Manejo seguro del error
     let errorMessage = 'Error desconocido';
     if (error instanceof Error) {
       errorMessage = error.message;
     }
     if (typeof error === 'object' && error !== null && 'response' in error) {
-      // Usamos un tipo más específico en lugar de `any`
       const typedError = error as { response?: { data: unknown } };
       errorMessage = typedError.response?.data as string || errorMessage;
     }
