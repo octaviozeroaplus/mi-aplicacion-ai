@@ -27,6 +27,8 @@ export async function POST(request: Request) {
 
     // Extrae la respuesta generada por la IA
     const result = response.data.choices[0].message.content.trim();
+
+    // Devuelve SOLO la respuesta del asistente
     return new Response(JSON.stringify({ result }), { status: 200 });
   } catch (error) {
     // Manejo seguro del error

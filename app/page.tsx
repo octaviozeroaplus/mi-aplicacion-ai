@@ -2,9 +2,15 @@
 
 import React, { useState } from 'react';
 
+// Interfaz para los mensajes
+interface Message {
+  role: 'user' | 'assistant'; // Puede ser "user" o "assistant"
+  content: string; // Contenido del mensaje
+}
+
 export default function ChatBot() {
   const [input, setInput] = useState(''); // Mensaje del usuario
-  const [messages, setMessages] = useState([]); // Historial de mensajes
+  const [messages, setMessages] = useState<Message[]>([]); // Historial de mensajes (con tipo explícito)
   const [loading, setLoading] = useState(false); // Estado de carga
 
   // Función para manejar el envío del mensaje
@@ -13,8 +19,8 @@ export default function ChatBot() {
     if (!input.trim()) return;
 
     // Agrega el mensaje del usuario al historial
-    const newMessage = { role: 'user', content: input };
-    setMessages((prev) => [...prev, newMessage]);
+    const newMessage: Message = { role: 'user', content: input };
+    setMessages((prev) => [...prev, newMessage]); // Solo agrega el mensaje del usuario aquí
     setInput('');
 
     // Muestra el estado de carga
@@ -33,10 +39,10 @@ export default function ChatBot() {
       }
 
       const data = await res.json();
-      const assistantMessage = { role: 'assistant', content: data.result };
 
-      // Agrega la respuesta del asistente al historial
-      setMessages((prev) => [...prev, newMessage, assistantMessage]);
+      // Agrega SOLO la respuesta del asistente al historial
+      const assistantMessage: Message = { role: 'assistant', content: data.result };
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -46,7 +52,10 @@ export default function ChatBot() {
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-      <h1>ChatBot</h1>
+      {/* Título personalizado */}
+      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Chat proporcionado por Zeroaplus</h1>
+
+      {/* Contenedor de mensajes */}
       <div style={{ border: '1px solid #ccc', padding: '10px', maxHeight: '400px', overflowY: 'auto', marginBottom: '10px' }}>
         {messages.map((msg, index) => (
           <div
@@ -63,6 +72,8 @@ export default function ChatBot() {
           </div>
         ))}
       </div>
+
+      {/* Formulario de entrada */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px' }}>
         <input
           type="text"
@@ -86,6 +97,14 @@ export default function ChatBot() {
           {loading ? 'Cargando...' : 'Enviar'}
         </button>
       </form>
+
+      {/* Información de contacto */}
+      <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#666' }}>
+        Para más información, contactar con{' '}
+        <a href="mailto:info@zeroaplus.com" style={{ color: '#007bff', textDecoration: 'none' }}>
+          info@zeroaplus.com
+        </a>
+      </p>
     </div>
   );
 }
