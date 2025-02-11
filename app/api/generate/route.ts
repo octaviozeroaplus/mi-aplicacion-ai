@@ -29,7 +29,16 @@ export async function POST(request: Request) {
     const result = response.data.choices[0].message.content.trim();
     return new Response(JSON.stringify({ result }), { status: 200 });
   } catch (error) {
-    console.error('Error al llamar a OpenAI:', error.response?.data || error.message); // Log para capturar errores
+    // Verifica si el error es un objeto con las propiedades esperadas
+    let errorMessage = 'Error desconocido';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      errorMessage = (error as any).response?.data || errorMessage;
+    }
+
+    console.error('Error al llamar a OpenAI:', errorMessage); // Log para capturar errores
     return new Response(JSON.stringify({ error: 'Error al generar la respuesta' }), { status: 500 });
   }
 }
