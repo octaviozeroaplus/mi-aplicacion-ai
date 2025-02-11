@@ -35,7 +35,9 @@ export async function POST(request: Request) {
       errorMessage = error.message;
     }
     if (typeof error === 'object' && error !== null && 'response' in error) {
-      errorMessage = (error as any).response?.data || errorMessage;
+      // Usamos un tipo más específico en lugar de `any`
+      const typedError = error as { response?: { data: unknown } };
+      errorMessage = typedError.response?.data as string || errorMessage;
     }
 
     console.error('Error al llamar a OpenAI:', errorMessage); // Log para capturar errores
